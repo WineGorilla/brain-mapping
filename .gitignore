@@ -30,5 +30,5 @@ Thumbs.db
 .idea/
 
 # --- 项目专用排除项 ---
-images/            # 不追踪 images 文件夹
+images/            
 audios/
