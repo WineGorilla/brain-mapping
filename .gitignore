@@ -1,0 +1,34 @@
+# --- Python 缓存文件 ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- 虚拟环境 ---
+brain-map/
+venv/
+env/
+.venv/
+.env/
+
+
+# --- 编译输出 ---
+build/
+dist/
+*.egg-info/
+
+# --- 日志与临时文件 ---
+*.log
+*.tmp
+*.bak
+
+# --- 操作系统文件 ---
+.DS_Store
+Thumbs.db
+
+# --- 编辑器文件 ---
+.vscode/
+.idea/
+
+# --- 项目专用排除项 ---
+images/            # 不追踪 images 文件夹
+audios/
