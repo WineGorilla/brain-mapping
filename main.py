@@ -1,170 +1,88 @@
 import numpy as np
-import torch
 from datasets import load_dataset
-import soundfile as sf
-import os,re
+
 
 from brain_mapping.cka_similarity import compute_model_similarity
 from brain_mapping.dimensionality_reduction import reduce_model_space
-from brain_mapping.visualize_space import plot_model_space
-from brain_mapping.brain_pipeline import compute_brain_alignment
+from brain_mapping.visualize_space import plot_model_space,run_pca_2d,plot_model_space_origin_axes,plot_model_space
 
-# 假设有10个时间点，voxel的数量为200个
-n_samples = 10
-n_voxels = 200
-y = np.random.randn(n_samples, n_voxels)  # 模拟脑信号
-if torch.backends.mps.is_available():
-    device = "mps"
-elif torch.cuda.is_available() and torch.version.cuda:
-    device = "cuda"
-else:
-    device = "cpu"
 
-# 模拟文本数据
-texts = [
-    "The cat sat on the mat.",
-    "A dog barked loudly.",
-    "Birds are flying in the sky.",
-    "Children are playing in the park.",
-    "The sun rises in the east.",
-    "The man opened the door.",
-    "She drank a cup of coffee.",
-    "The car stopped at the light.",
-    "People are walking downtown.",
-    "He is reading a newspaper."
-]
-
-# 模拟文本所对应的voxel
-# 200个voxel，平均划分成20个ROI
-roi_dict = {
-    f"ROI_{i+1}": np.arange(i * 10, (i + 1) * 10)
-    for i in range(20)
-}
-
-# 两个语言模型
-_, b_bert, _ = compute_brain_alignment(
-    model_name="bert-base-uncased",
-    modality="text",
-    inputs={"texts": texts},
-    y=y,
-    roi_dict=roi_dict,
-    device="mps"
-)
-
-_, b_roberta, _ = compute_brain_alignment(
-    model_name="roberta-base",
-    modality="text",
-    inputs={"texts": texts},
-    y=y,
-    roi_dict=roi_dict,
-    device="mps"
-)
-
-# 视觉模型
-dataset = load_dataset("cifar10", split="test[:20]")  # 取前20张
-image_paths = []
-texts = []
-
-for i, item in enumerate(dataset):
-    img = item["img"]
-    label = dataset.features["label"].int2str(item["label"])
-    file_name = f"image_{i}_{label}.jpg"
-    save_path = os.path.join("images", file_name)
-    img.save(save_path)
-    image_paths.append(save_path)
-    texts.append(f"{label}")
-T = len(image_paths)   # 时间点 = 图片数
-V = 200                # voxel 数量
-y = np.random.randn(T, V)  # 随机脑信号矩阵
-roi_image_dict = {
-    f"ROI_{i+1}": np.arange(i * 10, (i + 1) * 10)
-    for i in range(20)
-}
-
-best_layer_clip, roi_vector_clip, roi_scores_clip = compute_brain_alignment(
-    model_name="google/vit-base-patch16-224",
-    modality="image",
-    inputs={"image_paths": image_paths},
-    y=y,
-    roi_dict=roi_image_dict,
-    device="mps" 
-)
+# 语言模型
+# 语言模型
+b_bert = np.load("results/lang/bert-base-uncased/group_best_layer_roi.npy")
+roberta_base = np.load("results/lang/roberta-base/group_best_layer_roi.npy")
+distilbert = np.load("results/lang/distilbert-base-uncased/group_best_layer_roi.npy")
+albert_base_v2 = np.load("results/lang/albert-base-v2/group_best_layer_roi.npy")
+roberta_large = np.load("results/lang/roberta-large/group_best_layer_roi.npy")
+xlm_roberta_base = np.load("results/lang/xlm-roberta-base/group_best_layer_roi.npy")
+bert_large_uncased = np.load("results/lang/bert-large-uncased/group_best_layer_roi.npy")
+bert_base_multilingual_cased = np.load("results/lang/bert-base-multilingual-cased/group_best_layer_roi.npy")
+xlm_roberta_large = np.load("results/lang/xlm-roberta-large/group_best_layer_roi.npy")
+albert_large_v2 = np.load("results/lang/albert-large-v2/group_best_layer_roi.npy")
+electra_base_discriminator = np.load("results/lang/electra-base-discriminator/group_best_layer_roi.npy")
+electra_large_discriminator = np.load("results/lang/electra-large-discriminator/group_best_layer_roi.npy")
+bert_base_cased = np.load("results/lang/bert-base-cased/group_best_layer_roi.npy")
+bert_large_cased = np.load("results/lang/bert-large-cased/group_best_layer_roi.npy")
+deberta_base = np.load("results/lang/deberta-base/group_best_layer_roi.npy")
+deberta_large = np.load("results/lang/deberta-large/group_best_layer_roi.npy")
 
 
 # 音频模型
-sr = 16000
-audio_paths, texts = [], []
+wav2vec2 = np.load("results/audio/wav2vec2-base-960h/group_roi_best_layers.npy")
+wavlm_base = np.load("results/audio/wavlm-base/group_roi_best_layers.npy")
+hubert_base_ls960 = np.load("results/audio/hubert-base-ls960/group_roi_best_layers.npy")
+wav2vec2_large_xlsr_53 = np.load("results/audio/wav2vec2-large-xlsr-53/group_roi_best_layers.npy")
+data2vec_audio_base = np.load("results/audio/data2vec-audio-base/group_roi_best_layers.npy")
+data2vec_audio_large = np.load("results/audio/data2vec-audio-large/group_roi_best_layers.npy")
+hubert_large_ls960_ft = np.load("results/audio/hubert-large-ls960-ft/group_roi_best_layers.npy")
+wavlm_base_plus = np.load("results/audio/wavlm-base-plus/group_roi_best_layers.npy")
+wav2vec2_xls_r_1b = np.load("results/audio/wav2vec2-xls-r-1b/group_roi_best_layers.npy")
+mms_300m = np.load("results/audio/mms-300m/group_roi_best_layers.npy")
+wavlm_large = np.load("results/audio/wavlm-large/group_roi_best_layers.npy")
+wav2vec2_base_superb_ks = np.load("results/audio/wav2vec2-base-superb-ks/group_roi_best_layers.npy")
+wav2vec2_xls_r_300m = np.load("results/audio/wav2vec2-xls-r-300m/group_roi_best_layers.npy")
 
-for i in range(10):
-    waveform = np.random.randn(sr) * 0.01  # 1 秒噪音
-    path = f"audios/test_{i}.wav"
-    sf.write(path, waveform, sr)
-    audio_paths.append(path)
-    texts.append(f"random_{i}")
-
-T = len(audio_paths)   # 时间点 = 音频条目数
-V = 200                # voxel 数量
-y = np.random.randn(T, V)  # 随机脑信号矩阵
-
-roi_audio_dict = {
-    f"ROI_{i+1}": np.arange(i * 10, (i + 1) * 10)
-    for i in range(20)
-}
-
-best_layer_wavlm, roi_vector_wavlm, roi_scores_wavlm = compute_brain_alignment(
-    model_name="facebook/wav2vec2-base-960h",
-    modality="audio",
-    inputs={"audio_paths": audio_paths},
-    y=y,
-    roi_dict=roi_audio_dict,
-    device="mps"
-)
-
-
-
-# 多模态模型
-image_dir = "./images"
-image_paths = []
-image_texts = []
-
-for fname in sorted(os.listdir(image_dir)):
-    if fname.endswith(".jpg"):
-        # 完整路径
-        path = os.path.join(image_dir, fname)
-        image_paths.append(path)
-        
-        # 从文件名中提取类别词（_ 和 . 之间的那一段）
-        match = re.search(r"_(.*?)\.jpg$", fname)
-        if match:
-            label = match.group(1)
-        else:
-            label = "unknown"
-        
-        # 构造自然语言描述，让 CLIP 更容易理解
-        image_texts.append(f"a photo of a {label}")
-
-T = len(image_paths)   # 时间点 = 音频条目数
-V = 200                # voxel 数量
-y = np.random.randn(T, V)  # 随机脑信号矩阵
-
-best_layer_clip, roiclip, roi_scores_clip = compute_brain_alignment(
-    model_name="openai/clip-vit-base-patch16",
-    modality="multimodal",
-    inputs={"texts": image_texts, "image_paths": image_paths},
-    y=y,
-    roi_dict=roi_dict,
-    device="mps"
-)
+# 视觉模型
+vit_base_patch14 = np.load("results/img/vit-base-patch14-224/group_roi_best_layers.npy")
+vit_large_patch16 = np.load("results/img/vit-large-patch16-224/group_roi_best_layers.npy")
+deit_base_patch16_224 = np.load("results/img/deit-base-patch16-224/group_roi_best_layers.npy")
+dinov2_base = np.load("results/img/dinov2-base/group_roi_best_layers.npy")
+data2vec_vision_base = np.load("results/img/data2vec-vision-base/group_roi_best_layers.npy")
+dinov2_large = np.load("results/img/dinov2-large/group_roi_best_layers.npy")
+dinov2_small = np.load("results/img/dinov2-small/group_roi_best_layers.npy")
+beit_base_patch16_224 = np.load("results/img/beit-base-patch16-224/group_roi_best_layers.npy")
+deit_small_patch16_224 = np.load("results/img/deit-small-patch16-224/group_roi_best_layers.npy")
+beit_large_patch16_224 = np.load("results/img/beit-large-patch16-224/group_roi_best_layers.npy")
+data2vec_vision_large = np.load("results/img/data2vec-vision-large/group_roi_best_layers.npy")
+dino_vitb16 = np.load("results/img/dino-vitb16/group_roi_best_layers.npy")
+dino_vits16 = np.load("results/img/dino-vits16/group_roi_best_layers.npy")
+vit_mae_large = np.load("results/img/vit-mae-large/group_roi_best_layers.npy")
+vit_mae_base = np.load("results/img/vit-mae-base/group_roi_best_layers.npy")
+vit_msn_base = np.load("results/img/vit-msn-base/group_roi_best_layers.npy")
+vit_msn_large = np.load("results/img/vit-msn-large/group_roi_best_layers.npy")
 
 # 拼接为ROI矩阵
-B = np.stack([b_bert, b_roberta,roi_vector_clip,roi_vector_wavlm,roiclip], axis=1)  # (N_ROI × 2)
+B = np.stack([b_bert,roberta_base,distilbert,albert_base_v2,roberta_large,xlm_roberta_base,bert_large_uncased,bert_base_multilingual_cased,xlm_roberta_large,albert_large_v2,electra_base_discriminator,electra_large_discriminator,bert_base_cased,bert_large_cased,deberta_base,deberta_large,
+            wav2vec2,wavlm_base,hubert_base_ls960,wav2vec2_large_xlsr_53,data2vec_audio_base,data2vec_audio_large,hubert_large_ls960_ft,wavlm_base_plus,wav2vec2_xls_r_1b,mms_300m,wavlm_large,wav2vec2_base_superb_ks,wav2vec2_xls_r_300m,
+            vit_base_patch14,vit_large_patch16,deit_base_patch16_224,dinov2_base,data2vec_vision_base,dinov2_large,dinov2_small,beit_base_patch16_224,deit_small_patch16_224,beit_large_patch16_224,data2vec_vision_large,dino_vitb16,dino_vits16,vit_mae_large,vit_mae_base,vit_msn_base,vit_msn_large])  # (N_ROI × 2)
 
+model_names = ["BERT-base","roberta_base","distilbert","albert_base_v2","roberta_large","xlm_roberta_base","bert_large_uncased","bert_base_multilingual_cased","xlm_roberta_large","albert_large_v2","electra_base_discriminator","electra_large_discriminator","bert_base_cased","bert_large_cased","deberta_base","deberta_large",
+               "wav2vec2-base","wavlm_base","hubert_base_ls960","wav2vec2_large_xlsr_53","data2vec_audio_base","data2vec_audio_large","hubert_large_ls960_ft","wavlm_base_plus","wav2vec2_xls_r_1b","mms_300m","wavlm_large","wav2vec2_base_superb_ks","wav2vec2_xls_r_300m",
+               "vit-base-patch14","vit_large_patch16","deit_base_patch16_224","dinov2_base","data2vec_vision_base","dinov2_large","dinov2_small","beit_base_patch16_224","deit_small_patch16_224","beit_large_patch16_224","data2vec_vision_large","dino_vitb16","dino_vits16","vit_mae_large","vit_mae_base","vit_msn_base","vit_msn_large"]
+
+# 定义模态标签
+labels = (
+    ["lang"] * 16 +      
+    ["audio"] * 13 +     
+    ["vision"] * 17    
+)
+
+#MDS
 S = compute_model_similarity(B)
 coords = reduce_model_space(S, method="MDS", n_components=3)
-
-print(coords)
-
-model_names = ["BERT-base", "RoBERTa-base","vit-base-patch16-224","wavlm-base","clip-vit-base-patch16"]
-
-# 绘制3D空间分布
 plot_model_space(coords, model_names, title="Model Representation in Brain Space (MDS)")
+
+
+# PCA降维度
+coords_3d, explained = run_pca_2d(B)
+plot_model_space_origin_axes(coords_3d, model_names,labels=labels)

@@ -11,19 +11,7 @@ def load_model(model_name,device):
     return tokenizer,model
 
 def get_embeddings(tokenizer, model, texts, device, cls_only=True, all_layers=False, batch_size=8):
-    """
-    计算文本的 BERT embedding（支持多层与批量处理）
-    参数：
-        tokenizer, model: 预训练语言模型
-        texts: list[str]
-        device: "cpu"/"cuda"/"mps"
-        cls_only: 是否取 [CLS] 向量
-        all_layers: 是否返回所有层
-        batch_size: 每批文本数量
-    返回：
-        如果 all_layers=True: list of (T×D)
-        否则: (T×D)
-    """
+    # 计算文本的embedding
     model.config.output_hidden_states = True
     model.eval()
 

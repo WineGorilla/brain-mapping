@@ -1,15 +1,8 @@
 # --- Python 缓存文件 ---
 __pycache__/
-*.py[cod]
-*$py.class
-
-# --- 虚拟环境 ---
 brain-map/
-venv/
-env/
-.venv/
-.env/
-
+data/
+filterData/
 
 # --- 编译输出 ---
 build/
@@ -28,7 +21,3 @@ Thumbs.db
 # --- 编辑器文件 ---
 .vscode/
 .idea/
-
-# --- 项目专用排除项 ---
-images/            
-audios/
