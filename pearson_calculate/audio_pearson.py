@@ -10,8 +10,8 @@ from brain_mapping.roi_score import layer_roi_pearson_matrix, get_best_layer
 
 #默认为wav2vec2-base-960h
 FMRI_ROOT = "filterData/audio/fmri"
-EMB_DIR = "filterData/audio/design_matrix/wavlm-large"
-SAVE_ROOT = "results/sounds/wavlm-large"
+EMB_DIR = "filterData/audio/design_matrix/data2vec-audio-base"
+SAVE_ROOT = "results/audio/data2vec-audio-base"
 TR = 2.0
 STANDARD_N_ROI = 178  
 

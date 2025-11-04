@@ -77,7 +77,7 @@ def generate_audio_embeddings(
 # 默认为facebook/wav2vec2-base-960h
 if __name__ == "__main__":
     generate_audio_embeddings(
-        model_name="microsoft/wavlm-base",
+        model_name="facebook/data2vec-audio-base",
         device="mps",
         tr=2.0
     )
