@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 #         coords_2d: np.ndarray (N_models × 2)
 #         pls: PLSRegression 对象
 #     """
-#     # === 确保每行代表一个模型 ===
 #     if B.shape[0] < B.shape[1]:
 #         X = B
 #     else:
@@ -33,45 +32,29 @@ import matplotlib.pyplot as plt
 #     # === 打印解释度 ===
 #     X_var = np.var(coords_2d, axis=0)
 #     explained_ratio = np.round(X_var / X_var.sum(), 3)
-#     print(f"PLS 完成，投影方差比例（近似）：{explained_ratio}")
 
 #     return coords_2d, pls
 
 
 
 def run_pls_2d(B, labels):
-    """
-    使用 PLS 进行 2D 降维分析（模态有监督），采用【行标准化】。
-    参数:
-        B: np.ndarray (N_ROI × N_models)
-        labels: list[str], 模态标签（如 ['lang', 'audio', 'vision', ...]）
-    返回:
-        coords_2d: np.ndarray (N_models × 2)
-        pls: PLSRegression 对象
-    """
-    # === 确保每行代表一个模型 ===
     if B.shape[0] < B.shape[1]:
         X = B
     else:
         X = B.T
 
-    # === 行标准化 ===
     X_std = (X - X.mean(axis=1, keepdims=True)) / X.std(axis=1, keepdims=True)
     X_std[np.isnan(X_std)] = 0  # 防止除零异常
 
-    # === One-hot 编码模态标签 ===
     enc = OneHotEncoder(sparse_output=False)
     Y = enc.fit_transform(np.array(labels).reshape(-1, 1))
 
-    # === PLS 降维 ===
     pls = PLSRegression(n_components=2)
     coords_2d = pls.fit_transform(X_std, Y)[0]
 
-    # === 打印解释度 ===
     X_var = np.var(coords_2d, axis=0)
     explained_ratio = np.round(X_var / X_var.sum(), 3)
-    print(f"✅ PLS 完成（行标准化），投影方差比例（近似）：{explained_ratio}")
-
+    
     return coords_2d, pls
 
 
@@ -105,14 +88,12 @@ def plot_pls_space_2d(coords, model_names, labels, title="PLS Modality Space (2D
                     fontsize=8.5, weight='bold',
                     ha='left', va='center')
 
-    # === 自适应坐标范围（让图更紧凑） ===
     x_min, x_max = np.percentile(coords[:, 0], [5, 95])
     y_min, y_max = np.percentile(coords[:, 1], [5, 95])
     ax.set_xlim(x_min - 2, x_max + 2)
     ax.set_ylim(y_min - 2, y_max + 2)
     #ax.set_aspect('equal', adjustable='datalim')
 
-    # === 美化与图例 ===
     ax.set_title(title, fontsize=15, fontweight='bold', pad=12)
     ax.set_xlabel("PLS1", fontsize=11)
     ax.set_ylabel("PLS2", fontsize=11)
@@ -153,18 +134,15 @@ def plotp_pls_space_2d(coords, model_names, labels,
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    # === 模态样式定义（颜色 + marker） ===
     style_map = {
-        "lang":   {"color": "#4C72B0", "marker": "o"},   # 圆
-        "audio":  {"color": "#55A868", "marker": "s"},   # 方
-        "vision": {"color": "#C44E52", "marker": "^"}    # 三角
+        "lang":   {"color": "#4C72B0", "marker": "o"},   
+        "audio":  {"color": "#55A868", "marker": "s"},   
+        "vision": {"color": "#C44E52", "marker": "^"}   
     }
 
-    # === 坐标抖动，避免重叠 ===
     jitter = np.random.normal(scale=jitter_scale, size=coords.shape)
     coords_j = coords + jitter
 
-    # === 绘制散点 ===
     for i, (name, label) in enumerate(zip(model_names, labels)):
         style = style_map[label]
         x, y = coords_j[i]
@@ -181,23 +159,19 @@ def plotp_pls_space_2d(coords, model_names, labels,
                     ha='left', va='center',
                     color='black', alpha=0.9, zorder=4)
 
-    # === 坐标范围 & 比例 ===
     x_pad = (coords[:, 0].max() - coords[:, 0].min()) * 0.25
     y_pad = (coords[:, 1].max() - coords[:, 1].min()) * 0.25
     ax.set_xlim(coords[:, 0].min() - x_pad, coords[:, 0].max() + x_pad)
     ax.set_ylim(coords[:, 1].min() - y_pad, coords[:, 1].max() + y_pad)
     ax.set_aspect('equal', adjustable='box')
 
-
-    # === 坐标轴 & 标题 ===
     ax.set_xlabel("PLS1", labelpad=5)
     ax.set_ylabel("PLS2", labelpad=5)
     ax.set_title(title, pad=10)
-    # === 半框坐标轴（去掉上、右边框） ===
+
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    # === 图例（颜色 + 形状） ===
     legend_elements = [
         Line2D([0], [0],
                marker=style_map[m]["marker"],
@@ -212,6 +186,5 @@ def plotp_pls_space_2d(coords, model_names, labels,
                     loc="upper right", frameon=False)
     leg.get_title().set_fontweight('bold')
 
-    # === 输出 ===
     plt.tight_layout()
     plt.show()
