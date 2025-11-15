@@ -4,32 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # def run_pls_2d(B, labels):
-#     """
-#     使用 PLS 进行 2D 降维分析（模态有监督）
-#     参数:
-#         B: np.ndarray (N_ROI × N_models)
-#         labels: list[str], 模态标签（如 ['lang', 'audio', 'vision', ...]）
-#     返回:
-#         coords_2d: np.ndarray (N_models × 2)
-#         pls: PLSRegression 对象
-#     """
 #     if B.shape[0] < B.shape[1]:
 #         X = B
 #     else:
 #         X = B.T
 
-#     # === 标准化特征 ===
 #     X_std = StandardScaler().fit_transform(X)
 
-#     # === One-hot 编码模态标签 ===
 #     enc = OneHotEncoder(sparse_output=False)
 #     Y = enc.fit_transform(np.array(labels).reshape(-1, 1))
 
-#     # === PLS 降维 ===
 #     pls = PLSRegression(n_components=2)
 #     coords_2d = pls.fit_transform(X_std, Y)[0]
 
-#     # === 打印解释度 ===
 #     X_var = np.var(coords_2d, axis=0)
 #     explained_ratio = np.round(X_var / X_var.sum(), 3)
 
@@ -59,11 +46,6 @@ def run_pls_2d(B, labels):
 
 
 def plot_pls_space_2d(coords, model_names, labels, title="PLS Modality Space (2D)", show_labels=False):
-    """
-    绘制优化版 PLS 模态空间二维散点图
-    - 自动调整坐标范围、添加轻微抖动避免重叠
-    - 色彩区分模态，支持显示模型标签
-    """
 
     fig, ax = plt.subplots(figsize=(4.5, 3.5))
 
